@@ -33,9 +33,15 @@ results_rf<-run_ml(Data.p$dat_transformed, method="rf", outcome_colname="Ammonia
 results_rf$feature_importance
 ```
 
-#Run LM using Decision Tree
+#Run ML using Decision Tree
 ```{r}
 results_dt<-run_ml(Data.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, seed=9826)
 results_dt$feature_importance
+```
+
+# Run ML using XG Boost
+```{r}
+results_xg<-run_ml(Data.p$dat_transformed, method="xgbTree", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, seed=9926)
+#this takes very long-run did not complte- will likely be better to just stick to glmnet, dt, and rf like in savannas paper. 
 ```
 
