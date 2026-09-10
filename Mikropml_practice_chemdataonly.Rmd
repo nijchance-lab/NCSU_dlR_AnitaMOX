@@ -31,6 +31,7 @@ results_glmnet<-run_ml(Data.p$dat_transformed, method="glmnet", outcome_colname=
 ```{r}
 results_rf<-run_ml(Data.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, seed=9826)
 results_rf$feature_importance
+results_rf$performance
 ```
 
 #Run ML using Decision Tree
@@ -43,5 +44,31 @@ results_dt$feature_importance
 ```{r}
 results_xg<-run_ml(Data.p$dat_transformed, method="xgbTree", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, seed=9926)
 #this takes very long-run did not complte- will likely be better to just stick to glmnet, dt, and rf like in savannas paper. 
+```
+
+
+# Pull in table for reduced feature model
+```{r}
+Datar<- read_excel("C:/Users/njchance/OneDrive/Anitamox_influent_data_working.xlsx", sheet=10)
+Datar.df<- as.data.frame(Datar) #make into data frame for mikropml
+```
+
+# preprocessing usingl mikropml
+```{r}
+Datar.p<-mikropml::preprocess_data(Datar.df, outcome_colname="AmmoniaEFF")
+```
+
+# Run ml using linear regression
+```{r}
+results_glmnet_r<-run_ml(Datar.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=3, seed=9926) #using kfold=3 because it has to be between 1 and number of features
+results_glmnet_r$feature_importance
+results_glmnet_r$performance # did not do a particular good job
+```
+
+#Run ml using random forest
+```{r}
+results_rf_r<-run_ml(Datar.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=3, seed=9826)
+results_rf_r$feature_importance
+results_rf_r$performance
 ```
 
