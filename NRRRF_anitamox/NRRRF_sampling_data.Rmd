@@ -1,0 +1,61 @@
+---
+title: "NRRRF_sampling_data"
+output: html_document
+---
+
+# Purpose
+```{r}
+# use this code to partition data based on sampling location(influent, effluent, digester, in-reactor) and then pivot to a better working format. This will then be exported to excel and combined with the other data that has gone through this process. 
+```
+
+# library
+```{r}
+library(dplyr)
+library(tidyverse)
+library(readxl)
+library(writexl)
+```
+
+# First set of data
+
+```{r}
+anita<-read_excel("C:/Users/nicho/Downloads/AnitaMox_sidestream_parameter_data.xlsx")
+# performing null function will remove these columns from the data set and reduce the size of the matrix to work with. 
+anita$Matrix<-NULL
+anita$Method<-NULL
+anita$SampleType<-NULL
+anita$Units<-NULL
+anita_1<-pivot_wider(anita, names_from=Param, values_from=Result)
+anita_inf<-filter(anita_1, Site== "ANITA Mox Influent")
+write_xlsx(anita_inf, "C:/Users/nicho/Downloads/Anitamox_influent_data.xlsx")
+anita_reactor<-filter(anita_1, Site== "ANITA Mox Reactor 1")
+anita_clarifier<-filter(anita_1, Site== "Clarifier")
+write_xlsx(anita_clarifier, "C:/Users/nicho/Downloads/Anitamox_clarifier_data.xlsx")
+#reactor data
+anita_reactor<-filter(anita_1, Site=="ANITA Mox Reactor 1")
+write_xlsx(anita_reactor, "C:/Users/nicho/OneDrive/Data/NRRRF_data/Anitamox_reactor_data.xlsx")
+```
+
+
+# 2nd set of data
+```{r}
+anita<-read_excel("C:/Users/nicho/OneDrive/Data/NRRRF_data/Anitamox_data_dec_march.xls")
+anita$Matrix<-NULL
+anita$Method<-NULL
+anita$'Sample Type'<-NULL
+anita$Units<-NULL
+anita_1<-pivot_wider(anita, names_from=Param, values_from=Result)
+#influent data
+anita_inf<-filter(anita_1, Site== "ANITA Mox Influent")
+write_xlsx(anita_inf, "C:/Users/nicho/OneDrive/Data/NRRRF_data/Anitamox_influent_data2.xlsx")
+anita_reactor<-filter(anita_1, Site== "ANITA Mox Reactor 1")
+#clarifier data
+anita_clarifier<-filter(anita_1, Site== "Clarifier")
+write_xlsx(anita_clarifier, "C:/Users/nicho/OneDrive/Data/NRRRF_data/Anitamox_clarifier_data2.xlsx")
+#reactor data
+anita_reactor<-filter(anita_1, Site=="ANITA Mox Reactor 1")
+write_xlsx(anita_reactor, "C:/Users/nicho/OneDrive/Data/NRRRF_data/Anitamox_reactor_data2.xlsx")
+
+```
+
+
