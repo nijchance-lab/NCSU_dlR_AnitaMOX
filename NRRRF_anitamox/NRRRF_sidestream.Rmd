@@ -1,0 +1,162 @@
+---
+title: "NRRRF_sidestream_data"
+author: "Nicholas Chance"
+date: "2026-03-20"
+output: html_document
+---
+
+```{r}
+knitr::opts_chunk$set(fig.width = 30, fig.height=10)
+```
+
+
+# library
+```{r}
+library(reshape2)
+library(ggplot2)
+library(csv)
+```
+
+
+# Bring in data
+```{r}
+IFAS<- as.csv("C:/Users/nicho/OneDrive/IFAS_only_cleaned.csv", 
+                row.names = 1, header = TRUE, sep = ",", 
+                check.names = TRUE, stringsAsFactors = TRUE)
+#remove collection date column
+IFAS<-IFAS[,-which(names(IFAS)=="CollectDate.1")]
+
+MBBR<-as.csv("C:/Users/nicho/OneDrive/MBBR_only_cleaned.csv", 
+                row.names = 1, header = TRUE, sep = ",", 
+                check.names = TRUE, stringsAsFactors = TRUE)
+MBBR<-MBBR[,-which(names(MBBR)=="CollectDate.1")]
+```
+
+# IFAS
+## start corr matrix
+```{r}
+cormat_IFAS<- round(cor(IFAS, use = "pairwise.complete.obs"),2)
+head(cormat_IFAS)
+```
+
+```{r}
+melt_cormat_IFAS<-melt(cormat_IFAS)
+head(melt_cormat_IFAS)
+```
+
+## Plot
+```{r}
+ggplot(data=melt_cormat_IFAS, aes(x=Var1, y=Var2, fill=value))+
+  geom_tile()
+```
+
+### get lower triangle of corrmatrix
+```{r}
+get_lower_tri<-function(cormat_IFAS){
+  cormat_IFAS[upper.tri(cormat_IFAS)]<-NA
+  return(cormat_IFAS)}
+
+lower_tri<-get_lower_tri(cormat_IFAS)
+head(lower_tri)
+```
+
+```{r}
+tri_cormat_ifas<-melt(lower_tri, na.rm=TRUE)
+
+ggplot(data=tri_cormat_ifas, aes(x=Var1,y=Var2, fill=value))+
+  geom_tile(color="white")+
+  scale_fill_gradient2(low="blue",high="red", mid="white",
+                       midpoint=0, limit=c(-1,1), space="Lab",
+                       name="Pearson\nCorrelation")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=90, vjust=1, hjust=1))+
+  coord_fixed()
+```
+## just correlating hzsb to paramters
+```{r}
+x_vars<- c("ML","New","Preseed")
+y_vars<-colnames(IFAS)
+
+IFAS_cor<-round(cor(x=IFAS[,x_vars], y=IFAS[,y_vars], use = "pairwise.complete.obs"),2)
+IFAS_cor<-melt(IFAS_cor, na.rm=TRUE)
+head(IFAS_cor)
+```
+
+
+
+```{r}
+
+IFAS_heatmap<-ggplot(data=IFAS_cor, aes(x=Var2,y=Var1, fill=value))+
+  geom_tile(color="white")+
+  scale_fill_gradient2(low="blue",high="red", mid="white",
+                       midpoint=0, limit=c(-1,1), space="Lab",
+                       name="Pearson\nCorrelation")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1))
+```
+
+## add correaltion coefficient to boxes
+```{r}
+IFAS_heatmap+
+  geom_text(aes(Var2, Var1, label=value), color="black", size=3.1)+
+  theme(
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.border=element_blank(),
+    panel.background=element_blank(),
+    axis.ticks=element_blank(),
+    legend.justification=c(0.5,0.5),
+    legend.direction="horizontal",
+    legend.position="top",)+
+  guides(fill=guide_colorbar(barwidth=7, barheight=1, title.position="top", title.hjust=0.5))
+
+```
+
+# MBBR
+
+## just correlating hzsb to paramters
+```{r}
+x_vars<- c("ML","New","Preseed")
+y_vars<-colnames(MBBR)
+
+MBBR_cor<-round(cor(x=MBBR[,x_vars], y=MBBR[,y_vars], use = "pairwise.complete.obs"),2)
+MBBR_cor<-melt(MBBR_cor, na.rm=TRUE)
+head(MBBR_cor)
+```
+
+```{r}
+MBBR_heatmap<-ggplot(data=MBBR_cor, aes(x=Var2,y=Var1, fill=value))+
+  geom_tile(color="white")+
+  scale_fill_gradient2(low="blue",high="red", mid="white",
+                       midpoint=0, limit=c(-1,1), space="Lab",
+                       name="Pearson\nCorrelation")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1))
+```
+
+## add correaltion coefficient to boxes
+```{r}
+MBBR_heatmap_pic<-MBBR_heatmap+
+  geom_text(aes(Var2, Var1, label=value), color="black", size=3)+
+  theme(
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.border=element_blank(),
+    panel.background=element_blank(),
+    axis.ticks=element_blank(),
+    legend.justification=c(0.5,0.5),
+    legend.position="top",
+    legend.direction="horizontal")+
+  guides(fill=guide_colorbar(barwidth=7, barheight=1, title.position="top", title.hjust=0.5))
+
+plot(MBBR_heatmap_pic)
+
+```
+
+# save image
+```{r}
+ggsave(MBBR_heatmap_pic, filename="MBBR_heatmap.png", height=3, width=12, units= "in", dpi=300)
+```
+
