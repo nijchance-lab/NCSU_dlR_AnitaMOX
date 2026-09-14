@@ -14,7 +14,8 @@ knitr::opts_chunk$set(fig.width = 30, fig.height=10)
 ```{r}
 library(reshape2)
 library(ggplot2)
-library(csv)
+library(csv) # for finalized saved csv
+library(readxl) # for working documents in excel
 ```
 
 
@@ -81,7 +82,6 @@ IFAS_cor<-round(cor(x=IFAS[,x_vars], y=IFAS[,y_vars], use = "pairwise.complete.o
 IFAS_cor<-melt(IFAS_cor, na.rm=TRUE)
 head(IFAS_cor)
 ```
-
 
 
 ```{r}
@@ -155,8 +155,172 @@ plot(MBBR_heatmap_pic)
 
 ```
 
-# save image
+## save image
 ```{r}
 ggsave(MBBR_heatmap_pic, filename="MBBR_heatmap.png", height=3, width=12, units= "in", dpi=300)
 ```
 
+
+# Testing differences between biomass and DNA normalized correlations
+
+#IFAS biomass pearson
+```{r}
+IFAS_b<- read_excel("C:/Users/njchance/OneDrive/Anitamox_influent_data_working.xlsx", sheet="IFAS only cleaned")
+#remove collection date column
+IFAS_b<-IFAS_b[,-which(names(IFAS_b)=="CollectDate...1")]
+```
+
+## correlation matrix (pearson)
+```{r}
+cormat_IFASb<- round(cor(IFAS_b, use = "pairwise.complete.obs"),2)
+melt_cormat_IFASb<-melt(cormat_IFASb)
+```
+
+## plot
+```{r}
+ggplot(data=melt_cormat_IFASb, aes(x=Var1, y=Var2, fill=value))+
+  geom_tile()
+```
+
+```{r}
+get_lower_tri<-function(cormat_IFASb){
+  cormat_IFASb[upper.tri(cormat_IFASb)]<-NA
+  return(cormat_IFASb)}
+
+lower_tri<-get_lower_tri(cormat_IFASb)
+head(lower_tri)
+```
+
+```{r}
+tri_cormat_ifasb<-melt(lower_tri, na.rm=TRUE)
+
+ggplot(data=tri_cormat_ifasb, aes(x=Var1,y=Var2, fill=value))+
+  geom_tile(color="white")+
+  scale_fill_gradient2(low="blue",high="red", mid="white",
+                       midpoint=0, limit=c(-1,1), space="Lab",
+                       name="Pearson Correlation")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=90, vjust=1, hjust=1))+
+  coord_fixed()
+```
+## just correlating hzsb to paramters
+```{r}
+x_vars<- c("ML hzsB","BF new hzsB")
+y_vars<-colnames(IFAS_b)
+
+IFASb_cor<-round(cor(x=IFAS_b[,x_vars], y=IFAS_b[,y_vars], use = "pairwise.complete.obs"),2)
+IFASb_cor<-melt(IFASb_cor, na.rm=TRUE)
+head(IFASb_cor)
+```
+
+
+```{r}
+
+IFASb_heatmap<-ggplot(data=IFASb_cor, aes(x=Var2,y=Var1, fill=value))+
+  geom_tile(color="white")+
+  scale_fill_gradient2(low="blue",high="red", mid="white",
+                       midpoint=0, limit=c(-1,1), space="Lab",
+                       name="Pearson Correlation")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1))
+```
+
+## add correaltion coefficient to boxes
+```{r}
+#IFASb_heat_image<-
+IFASb_heatmap+
+  geom_text(aes(Var2, Var1, label=value), color="black", size=2.5)+
+  theme(
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.border=element_blank(),
+    panel.background=element_blank(),
+    axis.ticks=element_blank(),
+    legend.justification=c(0.5,0.5),
+    legend.direction="horizontal",
+    legend.position="top",)+
+  guides(fill=guide_colorbar(barwidth=7, barheight=1, title.position="top", title.hjust=0.5))
+
+```
+## Save image
+```{r}
+ggsave(IFASb_heat_image, filename="IFASb_heatmap.png", height=3, width=12, units= "in", dpi=300)
+```
+
+# IFAS DNA pearson
+```{r}
+IFAS_d<- read_excel("C:/Users/njchance/OneDrive/Anitamox_influent_data_working.xlsx", sheet="IFAS only DNA cleaned")
+#remove collection date column
+IFAS_d<-IFAS_d[,-which(names(IFAS_d)=="CollectDate...13")] # remove both collect dates so that all is numeric
+```
+
+## correlation matrix (pearson)
+```{r}
+cormat_IFASd<- round(cor(IFAS_d, use = "pairwise.complete.obs"),2)
+melt_cormat_IFASd<-melt(cormat_IFASd)
+```
+
+## plot
+```{r}
+get_lower_tri<-function(cormat_IFASd){
+  cormat_IFASd[upper.tri(cormat_IFASd)]<-NA
+  return(cormat_IFASd)}
+
+lower_tri<-get_lower_tri(cormat_IFASd)
+head(lower_tri)
+```
+
+
+```{r}
+tri_cormat_ifasd<-melt(lower_tri, na.rm=TRUE)
+
+ggplot(data=tri_cormat_ifasd, aes(x=Var1,y=Var2, fill=value))+
+  geom_tile(color="white")+
+  scale_fill_gradient2(low="blue",high="red", mid="white",
+                       midpoint=0, limit=c(-1,1), space="Lab",
+                       name="Pearson Correlation")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=90, vjust=1, hjust=1))+
+  coord_fixed()
+```
+
+## just correlating hzsb to paramters
+```{r}
+x_vars<- c("ML hzsB","BF new hzsB")
+y_vars<-colnames(IFAS_d)
+
+IFASd_cor<-round(cor(x=IFAS_d[,x_vars], y=IFAS_d[,y_vars], use = "pairwise.complete.obs"),2)
+IFASd_cor<-melt(IFASd_cor, na.rm=TRUE)
+head(IFASd_cor)
+```
+
+```{r}
+
+IFASd_heatmap<-ggplot(data=IFASd_cor, aes(x=Var2,y=Var1, fill=value))+
+  geom_tile(color="white")+
+  scale_fill_gradient2(low="blue",high="red", mid="white",
+                       midpoint=0, limit=c(-1,1), space="Lab",
+                       name="Pearson Correlation")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1))
+```
+
+## add correaltion coefficient to boxes
+```{r}
+#IFASd_heat_image<-
+IFASd_heatmap+
+  geom_text(aes(Var2, Var1, label=value), color="black", size=2.5)+
+  theme(
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.border=element_blank(),
+    panel.background=element_blank(),
+    axis.ticks=element_blank(),
+    legend.justification=c(0.5,0.5),
+    legend.direction="horizontal",
+    legend.position="top",)+
+  guides(fill=guide_colorbar(barwidth=7, barheight=1, title.position="top", title.hjust=0.5))
+
+```
