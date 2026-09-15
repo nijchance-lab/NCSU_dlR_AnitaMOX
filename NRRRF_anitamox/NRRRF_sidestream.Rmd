@@ -250,7 +250,7 @@ ggsave(IFASb_heat_image, filename="IFASb_heatmap.png", height=3, width=12, units
 
 # IFAS DNA pearson
 ```{r}
-IFAS_d<- read_excel("C:/Users/njchance/OneDrive/Anitamox_influent_data_working.xlsx", sheet="IFAS only DNA cleaned")
+IFAS_d<- read_excel("Anitamox_influent_data_working.xlsx", sheet="IFAS only DNA cleaned")
 #remove collection date column
 IFAS_d<-IFAS_d[,-which(names(IFAS_d)=="CollectDate...13")] # remove both collect dates so that all is numeric
 ```
