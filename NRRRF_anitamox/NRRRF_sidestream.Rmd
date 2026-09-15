@@ -285,9 +285,9 @@ ggplot(data=tri_cormat_ifasd, aes(x=Var1,y=Var2, fill=value))+
   coord_fixed()
 ```
 
-## just correlating hzsb to paramters
+# ML- correlating hzsb to parameters DNA vs BM normalized
 ```{r}
-x_vars<- c("ML hzsB","BF new hzsB")
+x_vars<- c("ML hzsB","ML hzsB bm")
 y_vars<-colnames(IFAS_d)
 
 IFASd_cor<-round(cor(x=IFAS_d[,x_vars], y=IFAS_d[,y_vars], use = "pairwise.complete.obs"),2)
@@ -308,9 +308,8 @@ IFASd_heatmap<-ggplot(data=IFASd_cor, aes(x=Var2,y=Var1, fill=value))+
 
 ## add correaltion coefficient to boxes
 ```{r}
-#IFASd_heat_image<-
-IFASd_heatmap+
-  geom_text(aes(Var2, Var1, label=value), color="black", size=2.5)+
+IFASml_heat_image<-IFASd_heatmap+
+  geom_text(aes(Var2, Var1, label=value), color="black", size=2)+
   theme(
     axis.title.x=element_blank(),
     axis.title.y=element_blank(),
@@ -323,4 +322,62 @@ IFASd_heatmap+
     legend.position="top",)+
   guides(fill=guide_colorbar(barwidth=7, barheight=1, title.position="top", title.hjust=0.5))
 
+```
+
+## save image
+```{r}
+ggsave(IFASml_heat_image, filename="IFASml_heat_image.png", height=3, width=12, units= "in", dpi=300)
+```
+
+
+# BF new- correlating hzsb to parameters DNA vs BM normalized
+```{r}
+x_vars<- c("BF new hzsB","BF new hzsB bm")
+y_vars<-colnames(IFAS_d)
+
+IFASd_cor<-round(cor(x=IFAS_d[,x_vars], y=IFAS_d[,y_vars], use = "pairwise.complete.obs"),2)
+IFASd_cor<-melt(IFASd_cor, na.rm=TRUE)
+head(IFASd_cor)
+```
+
+```{r}
+
+IFASd_heatmap<-ggplot(data=IFASd_cor, aes(x=Var2,y=Var1, fill=value))+
+  geom_tile(color="white")+
+  scale_fill_gradient2(low="blue",high="red", mid="white",
+                       midpoint=0, limit=c(-1,1), space="Lab",
+                       name="Pearson Correlation")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1))
+```
+
+## add correaltion coefficient to boxes
+```{r}
+IFASbf_heat_image<-IFASd_heatmap+
+  geom_text(aes(Var2, Var1, label=value), color="black", size=2)+
+  theme(
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.border=element_blank(),
+    panel.background=element_blank(),
+    axis.ticks=element_blank(),
+    legend.justification=c(0.5,0.5),
+    legend.direction="horizontal",
+    legend.position="top",)+
+  guides(fill=guide_colorbar(barwidth=7, barheight=1, title.position="top", title.hjust=0.5))
+
+```
+
+## save image
+```{r}
+ggsave(IFASbf_heat_image, filename="IFASbf_heat_image.png", height=3, width=12, units= "in", dpi=300)
+```
+
+
+# MBBR DNA pearson
+```{r}
+MBBR_d<- read_excel("Anitamox_influent_data_working.xlsx", sheet="IFAS only DNA cleaned")
+#remove collection date column
+MBBR_d<-MBBR_d[,-which(names(MBBR_d)=="CollectDate...13")] # remove both collect dates so that all is numeric
 ```
