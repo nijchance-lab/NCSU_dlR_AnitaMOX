@@ -47,9 +47,9 @@ results_xg<-run_ml(Data.p$dat_transformed, method="xgbTree", outcome_colname="Am
 ```
 
 
-# Reduced feature model- chem data only
+# Reduced feature model- chem data only w/ config categories
 ```{r}
-Datar<- read_excel("C:/Users/njchance/OneDrive/Anitamox_influent_data_working.xlsx", sheet=10)
+Datar<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="Inf only clean ML reduced")
 Datar.df<- as.data.frame(Datar) #make into data frame for mikropml
 ```
 
@@ -60,39 +60,23 @@ Datar.p<-mikropml::preprocess_data(Datar.df, outcome_colname="AmmoniaEFF")
 
 ## Linear regression
 ```{r}
-results_glmnet_r<-run_ml(Datar.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=3, seed=9926) #using kfold=3 because it has to be between 1 and number of features
+results_glmnet_r<-run_ml(Datar.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=91626) #using kfold=4 because it has to be between 1 and number of features
 results_glmnet_r$feature_importance
-results_glmnet_r$performance # did not do a particular good job
+results_glmnet_r$performance # did not do a particularly good job
 ```
 
 ## Random forest
 ```{r}
-results_rf_r<-run_ml(Datar.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=3, seed=9826)
+results_rf_r<-run_ml(Datar.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=3, seed=91626)
 results_rf_r$feature_importance
 results_rf_r$performance
-```
-# ddpcr data- hzsb only
-```{r}
-Data_pcr<- read_excel("C:/Users/njchance/OneDrive/Anitamox_influent_data_working.xlsx", sheet=11)
-Data_pcr.df<- as.data.frame(Data_pcr) #make into data frame for mikropml
+#this gives an R2 of 0.597. RMSE and MAE are still kinda high but this the best R2 we've gotten so far. 
 ```
 
-## Preprocessing
+## Decision Tree
 ```{r}
-Data_pcr.p<-mikropml::preprocess_data(Data_pcr.df, outcome_colname="Ammonia")
-```
-
-## Linear regression
-```{r}
-results_glmnet_pcr<-run_ml(Data_pcr.p$dat_transformed, method="glmnet", outcome_colname="Ammonia", find_feature_importance=TRUE, kfold=3, seed=9926) #using kfold=3 because it has to be between 1 and number of features
-results_glmnet_pcr$feature_importance
-results_glmnet_pcr$performance
-```
-
-## Random forest
-```{r}
-results_rf_pcr<-run_ml(Data_pcr.p$dat_transformed, method="rf", outcome_colname="Ammonia", find_feature_importance=TRUE, kfold=3, seed=9926) #using kfold=3 because it has to be between 1 and number of features
-results_rf_pcr$feature_importance
-results_rf_pcr$performance
+results_dt_r<-run_ml(Datar.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=91626)
+results_dt_r$feature_importance
+results_dt_r$performance
 ```
 
