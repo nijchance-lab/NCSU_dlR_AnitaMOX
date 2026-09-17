@@ -62,7 +62,7 @@ Datar.p<-mikropml::preprocess_data(Datar.df, outcome_colname="AmmoniaEFF")
 ```{r}
 results_glmnet_r<-run_ml(Datar.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=91626) #using kfold=4 because it has to be between 1 and number of features
 results_glmnet_r$feature_importance
-results_glmnet_r$performance # did not do a particularly good job
+results_glmnet_r$performance # did not do a particularly good job with data only up to Dec2, but adding data up to Mar 17 got R2 to 0.5466
 ```
 
 ## Random forest
@@ -70,7 +70,8 @@ results_glmnet_r$performance # did not do a particularly good job
 results_rf_r<-run_ml(Datar.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=3, seed=91626)
 results_rf_r$feature_importance
 results_rf_r$performance
-#this gives an R2 of 0.597. RMSE and MAE are still kinda high but this the best R2 we've gotten so far. 
+#this gives an R2 of 0.597. RMSE and MAE are still kinda high but this the best R2 we've gotten so far., done only with data up to December 2 
+# gives R2 of 0.6788 when data up to Mar 17 is added
 ```
 
 ## Decision Tree
@@ -78,5 +79,6 @@ results_rf_r$performance
 results_dt_r<-run_ml(Datar.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=91626)
 results_dt_r$feature_importance
 results_dt_r$performance
+# when data up to MAR 17 is added Decision tree is best with R2 of 0.7171 and a lower RMSE and MAE than linear and rf. 
 ```
 
