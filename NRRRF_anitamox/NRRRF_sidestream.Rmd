@@ -252,7 +252,7 @@ ggsave(IFASb_heat_image, filename="IFASb_heatmap.png", height=3, width=12, units
 ```{r}
 IFAS_d<- read_excel("Anitamox_influent_data_working.xlsx", sheet="IFAS only DNA cleaned")
 #remove collection date column
-IFAS_d<-IFAS_d[,-which(names(IFAS_d)=="CollectDate...13")] # remove both collect dates so that all is numeric
+IFAS_d<-IFAS_d[,-which(names(IFAS_d)=="CollectDate...1")] # remove both collect dates (1 and 13) so that all is numeric
 ```
 
 ## correlation matrix (pearson)
@@ -379,7 +379,7 @@ ggsave(IFASbf_heat_image, filename="IFASbf_heat_image.png", height=3, width=12, 
 ```{r}
 MBBR_d<- read_excel("Anitamox_influent_data_working.xlsx", sheet="MBBR Only DNA cleaned")
 #remove collection date column
-MBBR_d<-MBBR_d[,-which(names(MBBR_d)=="CollectDate...13")] # remove both collect dates so that all is numeric
+MBBR_d<-MBBR_d[,-which(names(MBBR_d)=="CollectDate...1")] # remove both collect dates so that all is numeric
 ```
 
 ## correlation matrix (pearson)
@@ -576,4 +576,94 @@ IFASbf_heat_image_spear<-IFASd_heatmap+
 ## save image
 ```{r}
 ggsave(IFASbf_heat_image_spear, filename="IFASbf_heat_image_spear.png", height=3, width=12, units= "in", dpi=300)
+```
+
+
+
+# Combining heatmap of DNA normalized hzsB in IFAS Spearman
+```{r}
+x_vars<- c("ML hzsB","BF new hzsB")
+y_vars<-colnames(IFAS_d)
+
+IFASd_cor<-round(cor(x=IFAS_d[,x_vars], y=IFAS_d[,y_vars], use = "pairwise.complete.obs", method="spearman"),2)
+IFASd_cor<-melt(IFASd_cor, na.rm=TRUE)
+head(IFASd_cor)
+```
+
+```{r}
+
+IFASd_heatmap<-ggplot(data=IFASd_cor, aes(x=Var2,y=Var1, fill=value))+
+  geom_tile(color="white")+
+  scale_fill_gradient2(low="blue",high="red", mid="white",
+                       midpoint=0, limit=c(-1,1), space="Lab",
+                       name="Spearman Correlation")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1))
+```
+
+## add correaltion coefficient to boxes
+```{r}
+IFAS_heat_image_spear_DNA<-IFASd_heatmap+
+  geom_text(aes(Var2, Var1, label=value), color="black", size=2)+
+  theme(
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.border=element_blank(),
+    panel.background=element_blank(),
+    axis.ticks=element_blank(),
+    legend.justification=c(0.5,0.5),
+    legend.direction="horizontal",
+    legend.position="top",)+
+  guides(fill=guide_colorbar(barwidth=7, barheight=1, title.position="top", title.hjust=0.5))
+
+```
+
+## save image
+```{r}
+ggsave(IFAS_heat_image_spear_DNA, filename="IFAS_heat_image_spear_DNA.png", height=3, width=12, units= "in", dpi=300)
+```
+
+# Combining heatmap of DNA normalized hzsB and amoA in MBBR Spearman
+```{r}
+x_vars<- c("ML  hzsB", "BF new hzsB","ML amoA", "BF new amoA")
+y_vars<-colnames(MBBR_d)
+
+MBBRd_cor<-round(cor(x=MBBR_d[,x_vars], y=MBBR_d[,y_vars], use = "pairwise.complete.obs", method ="spearman"),2)
+MBBRd_cor<-melt(MBBRd_cor, na.rm=TRUE)
+head(MBBRd_cor)
+```
+
+```{r}
+
+MBBRd_heatmap<-ggplot(data=MBBRd_cor, aes(x=Var2,y=Var1, fill=value))+
+  geom_tile(color="white")+
+  scale_fill_gradient2(low="blue",high="red", mid="white",
+                       midpoint=0, limit=c(-1,1), space="Lab",
+                       name="Spearman Correlation")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, vjust=1, hjust=1))
+```
+
+## add correaltion coefficient to boxes
+```{r}
+MBBR_heat_image_DNA<-MBBRd_heatmap+
+  geom_text(aes(Var2, Var1, label=value), color="black", size=1.8)+
+  theme(
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.border=element_blank(),
+    panel.background=element_blank(),
+    axis.ticks=element_blank(),
+    legend.justification=c(0.5,0.5),
+    legend.direction="horizontal",
+    legend.position="top",)+
+  guides(fill=guide_colorbar(barwidth=7, barheight=1, title.position="top", title.hjust=0.5))
+
+```
+
+## save image
+```{r}
+ggsave(MBBR_heat_image_DNA, filename="MBBR_heat_image_DNA.png", height=3, width=12, units= "in", dpi=300)
 ```
