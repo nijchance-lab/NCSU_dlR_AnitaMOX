@@ -15,11 +15,16 @@ library(tidyverse)
 library(readxl)
 library(writexl)
 ```
+# set working directory to NRRRF_antimaox folder
+```{r}
+
+```
+
 
 # First set of data
 
 ```{r}
-anita<-read_excel("C:/Users/nicho/Downloads/AnitaMox_sidestream_parameter_data.xlsx")
+anita<-read_excel("AnitaMox_sidestream_parameter_data.xlsx")
 # performing null function will remove these columns from the data set and reduce the size of the matrix to work with. 
 anita$Matrix<-NULL
 anita$Method<-NULL
@@ -37,7 +42,7 @@ write_xlsx(anita_reactor, "C:/Users/nicho/OneDrive/Data/NRRRF_data/Anitamox_reac
 ```
 
 
-# 2nd set of data
+# 2nd set of data- decmber to march
 ```{r}
 anita<-read_excel("C:/Users/nicho/OneDrive/Data/NRRRF_data/Anitamox_data_dec_march.xls")
 anita$Matrix<-NULL
@@ -58,4 +63,25 @@ write_xlsx(anita_reactor, "C:/Users/nicho/OneDrive/Data/NRRRF_data/Anitamox_reac
 
 ```
 
+# 3rd set of data- march to October 6th
 
+```{r}
+# change names of data sets in write_xlsx command land to correspond data# to set
+anita<-read_excel("AnitaMOX_data_march_October6.XLS")
+anita$Matrix<-NULL
+anita$Qualifier<-NULL
+anita$OrderID<-NULL
+anita$Units<-NULL
+anita_1<-data.frame(pivot_wider(anita, names_from=Test, values_from=Result))
+#influent data
+anita_inf<-filter(anita_1, Site== "ANITA Mox Influent")
+write_xlsx(anita_inf, "Anitamox_influent_data3.xlsx")
+anita_reactor<-filter(anita_1, Site== "ANITA Mox Reactor 1")
+#clarifier data
+anita_clarifier<-filter(anita_1, Site== "Clarifier")
+write_xlsx(anita_clarifier, "C:/Users/nicho/OneDrive/Data/NRRRF_data/Anitamox_clarifier_data2.xlsx")
+#reactor data
+anita_reactor<-filter(anita_1, Site=="ANITA Mox Reactor 1")
+write_xlsx(anita_reactor, "C:/Users/nicho/OneDrive/Data/NRRRF_data/Anitamox_reactor_data2.xlsx") 
+
+```
