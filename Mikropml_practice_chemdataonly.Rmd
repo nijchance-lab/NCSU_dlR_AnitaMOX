@@ -13,7 +13,7 @@ library(readxl) #used to pull in tables/data from excel
 
 # Pull in table form excel
 ```{r}
-Data<- read_excel("C:/Users/njchance/OneDrive/Anitamox_influent_data_working.xlsx", sheet=9)
+Data<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="Inf only clean MachL")
 Data.df<- as.data.frame(Data) #make into data frame for mikropml
 ```
 
@@ -24,20 +24,23 @@ Data.p<-mikropml::preprocess_data(Data.df, outcome_colname="AmmoniaEFF")
 
 ## Linear regression
 ```{r}
-results_glmnet<-run_ml(Data.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, seed=9826)
+results_glmnet<-run_ml(Data.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, seed=101626)
+results_glmnet$feature_importance
+results_glmnet$performance
 ```
 
 ## Random forest
 ```{r}
-results_rf<-run_ml(Data.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, seed=9826)
+results_rf<-run_ml(Data.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, seed=101626)
 results_rf$feature_importance
 results_rf$performance
 ```
 
 ## Decision Tree
 ```{r}
-results_dt<-run_ml(Data.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, seed=9826)
+results_dt<-run_ml(Data.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, seed=101626)
 results_dt$feature_importance
+results_dt$performance
 ```
 
 ## XG Boost
@@ -49,7 +52,7 @@ results_xg<-run_ml(Data.p$dat_transformed, method="xgbTree", outcome_colname="Am
 
 # Reduced feature model- chem data only w/ config categories
 ```{r}
-Datar<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="Inf only clean ML reduced")
+Datar<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="Inf only clean MachL reduced")
 Datar.df<- as.data.frame(Datar) #make into data frame for mikropml
 ```
 
@@ -60,25 +63,25 @@ Datar.p<-mikropml::preprocess_data(Datar.df, outcome_colname="AmmoniaEFF")
 
 ## Linear regression
 ```{r}
-results_glmnet_r<-run_ml(Datar.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=91626) #using kfold=4 because it has to be between 1 and number of features
+results_glmnet_r<-run_ml(Datar.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=101626) #using kfold=4 because it has to be between 1 and number of features
 results_glmnet_r$feature_importance
-results_glmnet_r$performance # did not do a particularly good job with data only up to Dec2, but adding data up to Mar 17 got R2 to 0.5466
+results_glmnet_r$performance # did not do a particularly good job with data only up to Dec2, but adding data up to Mar 17 got R2 to 0.5466, adding data up to Oct 6 push R2 backward to .36797
 ```
 
 ## Random forest
 ```{r}
-results_rf_r<-run_ml(Datar.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=3, seed=91626)
+results_rf_r<-run_ml(Datar.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=101626)
 results_rf_r$feature_importance
 results_rf_r$performance
 #this gives an R2 of 0.597. RMSE and MAE are still kinda high but this the best R2 we've gotten so far., done only with data up to December 2 
-# gives R2 of 0.6788 when data up to Mar 17 is added
+# gives R2 of 0.6788 when data up to Mar 17 is added, gives R2 of .3629597 with data up to Oct 6th
 ```
 
 ## Decision Tree
 ```{r}
-results_dt_r<-run_ml(Datar.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=91626)
+results_dt_r<-run_ml(Datar.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=101626)
 results_dt_r$feature_importance
 results_dt_r$performance
-# when data up to MAR 17 is added Decision tree is best with R2 of 0.7171 and a lower RMSE and MAE than linear and rf. 
+# when data up to MAR 17 is added Decision tree is best with R2 of 0.7171 and a lower RMSE and MAE than linear and rf. With data up to Oct 6th, R2 is .4204528, better than rf and lr but likely need to tune some hyperparameters and gett he microbial data in. 
 ```
 
