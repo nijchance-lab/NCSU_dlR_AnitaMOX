@@ -100,7 +100,7 @@ DataE.p<-mikropml::preprocess_data(DataE.df, outcome_colname="AmmoniaEFF")
 ```{r}
 results_glmnet_E<-run_ml(DataE.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=5, seed=101626) 
 results_glmnet_E$feature_importance
-results_glmnet_E$performance # with data up to Oct 6, gives R2 of .9873273, RMSE and MAE are high though, microbial data may help to improve them. 
+results_glmnet_E$performance # with data up to Oct 6, gives R2 of .9873273, RMSE and MAE are kinda high though, microbial data may help to improve them. 
 ```
 
 ## Random forest
@@ -115,4 +115,29 @@ results_rf_E$performance # with data up to Oct 6, R2 is .9787831, slightly lower
 results_dt_E<-run_ml(DataE.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=5, seed=101626)
 results_dt_E$feature_importance
 results_dt_E$performance # with data up to Oct 6, R2 is .7299559, worst between RF and LR, and with mucher higher errors. still performing better on both metrics than influent only data. 
+```
+
+# Effluent only reduced data
+```{r}
+DataE2<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="Eff only clean MachL 2")
+DataE2.df<- as.data.frame(DataE2) #make into data frame for mikropml
+```
+
+## preprocessing usingl mikropml
+```{r}
+DataE2.p<-mikropml::preprocess_data(DataE2.df, outcome_colname="AmmoniaEFF")
+```
+
+## Linear regression
+```{r}
+results_glmnet_E2<-run_ml(DataE2.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=2, seed=102026) #kfold at 2 due to number of features
+results_glmnet_E2$feature_importance
+results_glmnet_E2$performance # with data up to Oct 6, gives R2 of .744504
+```
+
+## Random forest
+```{r}
+results_rf_E2<-run_ml(DataE2.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=2, seed=102026)
+results_rf_E2$feature_importance
+results_rf_E2$performance # with data up to Oct 6, R2 is .7542735, slightly lower than lr and with higher errors
 ```
