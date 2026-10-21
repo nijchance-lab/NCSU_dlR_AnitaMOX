@@ -141,3 +141,35 @@ results_rf_E2<-run_ml(DataE2.p$dat_transformed, method="rf", outcome_colname="Am
 results_rf_E2$feature_importance
 results_rf_E2$performance # with data up to Oct 6, R2 is .7542735, slightly lower than lr and with higher errors
 ```
+
+# Effluent only, shifted one week to predict one week ahead
+```{r}
+DataEshift<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="Eff only clean MachL shift")
+DataEshift.df<- as.data.frame(DataEshift) #make into data frame for mikropml
+```
+
+## preprocessing usingl mikropml
+```{r}
+DataEshift.p<-mikropml::preprocess_data(DataEshift.df, outcome_colname="AmmoniaEFF")
+```
+
+## Linear regression
+```{r}
+results_glmnet_Eshift<-run_ml(DataEshift.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=5, seed=102126) 
+results_glmnet_Eshift$feature_importance
+results_glmnet_Eshift$performance # with data up to Oct 6, gives R2 of .7504778
+```
+
+## Random forest
+```{r}
+results_rf_Eshift<-run_ml(DataEshift.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=5, seed=102126)
+results_rf_Eshift$feature_importance
+results_rf_Eshift$performance # with data up to Oct 6, R2 is .0.5495919
+```
+
+## Decision Tree
+```{r}
+results_dt_Eshift<-run_ml(DataEshift.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=5, seed=102126)
+results_dt_Eshift$feature_importance
+results_dt_Eshift$performance # with data up to Oct 6, R2 is .2692101
+```
