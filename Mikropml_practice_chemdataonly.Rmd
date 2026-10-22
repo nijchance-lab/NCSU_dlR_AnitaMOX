@@ -9,6 +9,8 @@ output: html_document
 ```{r}
 library(mikropml) #machine learning pipeline to be used to build predictor model
 library(readxl) #used to pull in tables/data from excel
+library(dplyr) #if you need to manipulate a table
+library(tidyverse) #if you need to manipulate a table
 ```
 
 # Pull in table form excel
@@ -173,3 +175,39 @@ results_dt_Eshift<-run_ml(DataEshift.p$dat_transformed, method="rpart2", outcome
 results_dt_Eshift$feature_importance
 results_dt_Eshift$performance # with data up to Oct 6, R2 is .2692101
 ```
+# Reactor data only
+# Effluent only, shifted one week to predict one week ahead
+```{r}
+DataErx<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="MachL_reactor")
+DataErx.df<- as.data.frame(DataErx) #make into data frame for mikropml
+```
+
+## preprocessing usingl mikropml
+```{r}
+DataErx.p<-mikropml::preprocess_data(DataErx.df, outcome_colname="AmmoniaEFF")
+```
+
+## Linear regression
+```{r}
+results_glmnet_Erx<-run_ml(DataErx.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=102226) 
+results_glmnet_Erx$feature_importance
+results_glmnet_Erx$performance # with data up to Oct 6, gives R2 of .7487542
+```
+## Random forest
+```{r}
+results_rf_Erx<-run_ml(DataErx.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=102226)
+results_rf_Erx$feature_importance
+results_rf_Erx$performance # with data up to Oct 6, R2 is .9136159
+```
+
+## Decision Tree
+```{r}
+results_dt_Erx<-run_ml(DataErx.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=4, seed=102226)
+results_dt_Erx$feature_importance
+results_dt_Erx$performance # with data up to Oct 6, R2 is .2692101
+```
+
+```{r}
+
+```
+
