@@ -175,8 +175,8 @@ results_dt_Eshift<-run_ml(DataEshift.p$dat_transformed, method="rpart2", outcome
 results_dt_Eshift$feature_importance
 results_dt_Eshift$performance # with data up to Oct 6, R2 is .2692101
 ```
+
 # Reactor data only
-# Effluent only, shifted one week to predict one week ahead
 ```{r}
 DataErx<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="MachL_reactor")
 DataErx.df<- as.data.frame(DataErx) #make into data frame for mikropml
@@ -207,7 +207,34 @@ results_dt_Erx$feature_importance
 results_dt_Erx$performance # with data up to Oct 6, R2 is .2692101
 ```
 
+# Reactor data only- removing ammonium
 ```{r}
-
+DataEr<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="MachL_reactor")
+DataEr$Ammonium<-NULL
+DataEr.df<- as.data.frame(DataEr) #make into data frame for mikropml
 ```
 
+## preprocessing usingl mikropml
+```{r}
+DataEr.p<-mikropml::preprocess_data(DataEr.df, outcome_colname="AmmoniaEFF")
+```
+
+## Linear regression
+```{r}
+results_glmnet_Er<-run_ml(DataEr.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=3, seed=102326) 
+results_glmnet_Er$feature_importance
+results_glmnet_Er$performance # with data up to Oct 6, gives R2 of .2100231
+```
+## Random forest
+```{r}
+results_rf_Er<-run_ml(DataEr.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=3, seed=102326)
+results_rf_Er$feature_importance
+results_rf_Er$performance # with data up to Oct 6, R2 is .4134756
+```
+
+## Decision Tree
+```{r}
+results_dt_Er<-run_ml(DataEr.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=3, seed=102326)
+results_dt_Er$feature_importance
+results_dt_Er$performance # with data up to Oct 6, R2 is .5274228
+```
