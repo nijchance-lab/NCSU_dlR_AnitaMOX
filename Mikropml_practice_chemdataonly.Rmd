@@ -238,3 +238,73 @@ results_dt_Er<-run_ml(DataEr.p$dat_transformed, method="rpart2", outcome_colname
 results_dt_Er$feature_importance
 results_dt_Er$performance # with data up to Oct 6, R2 is .5274228
 ```
+
+# Reactor data w/ ml hzsB
+```{r}
+Datarm<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="MachL_reactor&micro")
+Datarm$DATE<-NULL
+Datarm$Config<-NULL
+#Datarm$Ammonium<-NULL
+#Datarm$TSS<-NULL
+#Datarm$Temp<-NULL
+#Datarm$DO<-NULL
+Datarm.df<- as.data.frame(Datarm) #make into data frame for mikropml
+```
+
+## preprocessing usingl mikropml
+```{r}
+Datarm.p<-mikropml::preprocess_data(Datarm.df, outcome_colname="AmmoniaEFF")
+```
+
+## Linear regression
+```{r}
+results_glmnet_rm<-run_ml(Datarm.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=2, seed=110226) 
+results_glmnet_rm$feature_importance
+results_glmnet_rm$performance # with data up to Dec 12, gives R2 of .0.817, with ml_hzsb most important feature when all features except config included
+```
+
+## Random forest
+```{r}
+results_rf_rm<-run_ml(Datarm.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=5, seed=110226)
+results_rf_rm$feature_importance
+results_rf_rm$performance 
+```
+
+## Decision Tree
+```{r}
+results_dt_rm<-run_ml(Datarm.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=5, seed=110226)
+results_dt_rm$feature_importance
+results_dt_rm$performance # with data up to Oct 6, R2 is .2692101
+```
+
+# Effluent data w/ ml hzsB
+```{r}
+DataEM<- read_excel("NRRRF_anitamox/Anitamox_influent_data_working.xlsx", sheet="MachL_eff&micro")
+DataEM.df<- as.data.frame(DataEM) #make into data frame for mikropml
+```
+
+## preprocessing usingl mikropml
+```{r}
+DataEM.p<-mikropml::preprocess_data(DataEM.df, outcome_colname="AmmoniaEFF")
+```
+
+## Linear regression
+```{r}
+results_glmnet_EM<-run_ml(DataEM.p$dat_transformed, method="glmnet", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=5, seed=110226) 
+results_glmnet_EM$feature_importance
+results_glmnet_EM$performance # with data up to Dec 2, gives R2 of .0.9578273, with ml_hzsb most important feature when all features except config included
+```
+
+## Random forest
+```{r}
+results_rf_EM<-run_ml(DataEM.p$dat_transformed, method="rf", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=5, seed=110226)
+results_rf_EM$feature_importance
+results_rf_EM$performance #R2 is 0.9360212 with data up to dec 2
+```
+
+## Decision Tree
+```{r}
+results_dt_EM<-run_ml(DataEM.p$dat_transformed, method="rpart2", outcome_colname="AmmoniaEFF", find_feature_importance=TRUE, kfold=5, seed=110226)
+results_dt_EM$feature_importance
+results_dt_EM$performance # with data up to Oct 6, R2 is .2692101
+```
